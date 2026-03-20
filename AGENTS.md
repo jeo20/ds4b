@@ -2,7 +2,12 @@
 
 ## Skill
 
-Usar el archivo `skills/sales_forecasting.md` cuya carpeta se encuentra que se encuentra en la raiz del proyecto.
+Usar el archivo `skills/sales_forecasting.md` que se encuentra en la raíz del proyecto.
+
+## Entorno
+
+- Usar el conda environment `Forecasting` para ejecutar notebooks
+- Instalar paquetes con `conda install -n Forecasting <paquete>`
 
 ## Reglas
 

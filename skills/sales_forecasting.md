@@ -2,7 +2,7 @@
 
 Skill especializada en forecasting de ventas y análisis de competencia para el proyecto DS4B
 
-**Versión**: 1.0.0
+**Versión**: 1.1.0
 
 ---
 
@@ -26,6 +26,12 @@ Asistente de forecasting para análisis de ventas y datos de competencia.
 | Input     | `../data/raw/entrenamiento/` |
 | Processed | `../data/processed/`         |
 | Models    | `../models/`                 |
+
+### Archivos
+
+| Archivo              | Descripción                                      |
+| -------------------- | ------------------------------------------------ |
+| df_procesado.csv     | Dataset unificado y transformado (2880 filas)    |
 
 ---
 
@@ -79,6 +85,7 @@ Asistente de forecasting para análisis de ventas y datos de competencia.
 | ------------------- | ---------------------------------------- |
 | año                | Año de la fecha                          |
 | mes                | Mes (1-12)                               |
+| dia                | Día del mes                              |
 | dia_mes            | Día del mes                              |
 | dia_semana         | Día de la semana (0=lunes)               |
 | nombre_dia         | Nombre del día                           |
@@ -103,8 +110,8 @@ Asistente de forecasting para análisis de ventas y datos de competencia.
 #### Variables de precios
 | Variable            | Descripción                              |
 | ------------------- | ---------------------------------------- |
-| descuento_pct       | Porcentaje descuento (precio_venta - precio_base / precio_base) * 100 |
-| precio_competencia  | Promedio de precios de competidores       |
+| descuento_pct       | Porcentaje descuento: ((precio_venta - precio_base) / precio_base) * 100 |
+| precio_competencia  | Promedio de precios de competidores (Amazon + Decathlon + Deporvillage) / 3 |
 | ratio_precio        | precio_venta / precio_competencia         |
 
 #### Variables one-hot (dummies)
@@ -146,7 +153,7 @@ Pasos:
 5. Análisis descriptivo de ventas (unidades_vendidas, ingresos)
 6. Distribución por categoria y subcategoria
 7. Identificar productos estrellas (es_estrella)
-8. Análisis temporal: ventas por día/semana/mes
+8. Análisis temporal: ventas por día/semana/mes con gráficos seaborn
 
 ---
 
@@ -156,12 +163,16 @@ Descripción: Ingeniería de características para forecasting
 
 Pasos:
 
-1. Extraer características temporales de `fecha`: año, mes, día, día_semana, semana, trimestre
-2. Crear lags de ventas (lag_7, lag_14, lag_30)
-3. Crear medias móviles (rolling_mean_7, rolling_mean_30)
-4. Agregar holidays de España (usando library holidays)
-5. Características de competencia: merge con dataframe competencia
-6. Crear ratios de precio vs competidores
+1. Extraer características temporales de `fecha`: año, mes, día, dia_mes, día_semana, semana_del_año, trimestre, dia_del_año
+2. Crear variables binarias: es_fin_semana, es_festivo, es_black_friday, es_cyber_monday, es_comienzo_mes, es_fin_mes, es_primer_lunes_mes, es_rebajas
+3. Agregar holidays de España usando library `holidays`
+4. Crear lags de ventas (lag_1 a lag_7) por producto y año
+5. Crear media móvil de 7 días (rolling_mean_7)
+6. Merge ventas con competencia por fecha y producto_id
+7. Crear descuento_pct, precio_competencia y ratio_precio
+8. Aplicar one-hot encoding a nombre, categoria y subcategoria
+9. Eliminar registros con nulos generados por los lags
+10. Guardar dataset procesado en `../data/processed/df_procesado.csv`
 
 ---
 
@@ -186,11 +197,10 @@ Descripción: Análisis de precios de competencia
 
 Pasos:
 
-1. Merge ventas con competencia por fecha y producto_id
-2. Comparar precio_venta con Amazon, Decathlon, Deporvillage
-3. Calcular diferencia de precios y ratios
-4. Identificar oportunidades de pricing
-5. Visualizar evolución de precios competitivos
+1. Comparar precio_venta con precio_competencia
+2. Analizar ratio_precio: si es >1 somos más caros, si <1 somos más baratos
+3. Analizar descuento_pct para identificar estrategias de pricing
+4. Identificar oportunidades de pricing basadas en la diferencia con competidores
 
 ---
 
@@ -199,14 +209,16 @@ Pasos:
 ### Series Temporales
 
 - Evolución temporal de ventas (matplotlib/seaborn)
+- Series por año con marcadores de Black Friday
 - Tendencia por categoria
 - Comparación con precios de competencia
 
 ### Distribucion
 
 - Histograma de ventas por producto
+- Barplot por dia de semana, categoria y subcategoria
 - Boxplot por categoria
-- Heatmap de correlación
+- KDE de densidades de precios
 
 ---
 
@@ -218,6 +230,7 @@ Pasos:
 4. Solo usar variables de los dataframes definidos o variables creadas en el código
 5. Solo usar librerías: pandas, numpy, matplotlib, seaborn, scikit-learn, streamlit, holidays
 6. No hacer preamble/postamble innecesario
+7. Al guardar datasets o modelos usar paths desde `notebooks/`: `../data/processed/` o `../models/`
 
 ---
 
@@ -228,4 +241,4 @@ Pasos:
 | EDA           | Realiza un análisis exploratorio de los datos de ventas             |
 | Forecasting   | Entrena un modelo de forecasting para predecir unidades_vendidas     |
 | Competition   | Analiza cómo se comparan nuestros precios con los de la competencia |
-| Visualization | Crea una visualización de la tendencia de ventas por categoría     |
+| Visualization | Crea una visualización de la tendencia de ventas por categoría       |
