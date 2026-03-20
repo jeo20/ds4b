@@ -1,0 +1,3 @@
+A continuacion de la ultima celda quiero que hagas lo siguiente:
+crea una copia de las siguientes 3 variables: nombre a nombre_h, categoría a categoría_h y subcategoría a subcategoría_h. 
+Luego haz One hot encoding sobre las 3 variables recien creadas:nombre_h, categoría_h y subcategoría_h, solamente estas 3 variables.
